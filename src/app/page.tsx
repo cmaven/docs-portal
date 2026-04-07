@@ -47,13 +47,15 @@ export default function HomePage() {
           <div className="mt-8 flex gap-3 justify-center">
             <Link
               href="/docs"
-              className="rounded-lg bg-fd-primary px-6 py-3 text-fd-primary-foreground font-medium hover:opacity-90 transition-opacity"
+              className="rounded-lg bg-fd-primary px-6 py-3 text-fd-primary-foreground font-semibold hover:opacity-90 transition-all shadow-sm hover:shadow-md"
             >
               문서 보기
             </Link>
             <a
               href="https://github.com"
-              className="rounded-lg border border-fd-border px-6 py-3 font-medium hover:bg-fd-accent transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg border border-fd-border px-6 py-3 font-medium hover:bg-fd-accent hover:border-fd-primary transition-all"
             >
               GitHub
             </a>

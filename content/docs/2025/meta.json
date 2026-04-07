@@ -1,5 +1,6 @@
 {
   "title": "2025",
   "root": true,
-  "pages": ["project-alpha", "project-beta"]
+  "defaultOpen": true,
+  "pages": ["project-alpha", "project-alpha-v2", "project-beta", "guide"]
 }
