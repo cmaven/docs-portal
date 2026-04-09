@@ -209,19 +209,69 @@ a.mdx-button--solid:hover {
   border: 1px solid var(--vp-c-border);
 }
 
-/* ── GFM Alert 스타일 오버라이드 ── */
-/* VitePress는 네이티브 custom container를 지원하므로 추가 스타일만 */
+/* ── Callout / Custom Block: old 디자인 (좌측 세로라인 + 아이콘 + 그림자) ── */
+.custom-block {
+  border: none !important;
+  border-left: 4px solid !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  padding: 16px 16px 8px 16px;
+  color: var(--vp-c-text-1);
+}
 .custom-block.info {
-  border-color: #3b82f6;
+  border-left-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.06);
 }
 .custom-block.tip {
-  border-color: #10b981;
+  border-left-color: #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.06);
 }
 .custom-block.warning {
-  border-color: #f59e0b;
+  border-left-color: #f59e0b !important;
+  background-color: rgba(245, 158, 11, 0.06);
 }
 .custom-block.danger {
-  border-color: #ef4444;
+  border-left-color: #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.06);
+}
+.custom-block.note {
+  border-left-color: #8b5cf6 !important;
+  background-color: rgba(139, 92, 246, 0.06);
+}
+/* Callout 타이틀 아이콘 */
+.custom-block-title::before {
+  margin-right: 0.4em;
+}
+.custom-block.info .custom-block-title::before { content: 'ℹ️'; }
+.custom-block.tip .custom-block-title::before { content: '✅'; }
+.custom-block.warning .custom-block-title::before { content: '⚠️'; }
+.custom-block.danger .custom-block-title::before { content: '❌'; }
+.custom-block.note .custom-block-title::before { content: '📝'; }
+/* 다크모드 Callout 배경 */
+.dark .custom-block.info { background-color: rgba(59, 130, 246, 0.1); }
+.dark .custom-block.tip { background-color: rgba(16, 185, 129, 0.1); }
+.dark .custom-block.warning { background-color: rgba(245, 158, 11, 0.1); }
+.dark .custom-block.danger { background-color: rgba(239, 68, 68, 0.1); }
+.dark .custom-block.note { background-color: rgba(139, 92, 246, 0.1); }
+
+/* ── 코드블록: 라이트=흰색 배경, 다크=고대비 ── */
+:root {
+  --vp-code-block-bg: #ffffff;
+  --vp-code-bg: rgba(17, 153, 158, 0.08);
+}
+.dark {
+  --vp-code-block-bg: #0d1117;
+  --vp-code-bg: rgba(48, 227, 202, 0.1);
+}
+/* 코드블록 스타일 */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+/* 다크모드에서만 밝은 텍스트 */
+.dark .vp-doc div[class*='language-'] code {
+  color: #e4e4e7;
 }
 
 /* ── 문서 페이지: navbar 완전 숨김 + 사이드바 전체 높이 ── */

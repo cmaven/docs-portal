@@ -241,29 +241,29 @@ Hugo Book의 `details` 숏코드에 익숙하다면 `Details`를 사용할 수 �
 ### 사용법
 
 ```mdx
-<Badge style="info" title="Version" value="2.0.0" />
-<Badge style="success" title="Build" value="Passing" />
-<Badge style="warning" title="Coverage" value="75%" />
-<Badge style="danger" title="Issues" value="3" />
+<Badge type="info" title="Version" value="2.0.0" />
+<Badge type="success" title="Build" value="Passing" />
+<Badge type="warning" title="Coverage" value="75%" />
+<Badge type="danger" title="Issues" value="3" />
 ```
 
-<Badge style="info" title="Version" value="2.0.0" /> <Badge style="success" title="Build" value="Passing" /> <Badge style="warning" title="Coverage" value="75%" /> <Badge style="danger" title="Issues" value="3" />
+<Badge type="info" title="Version" value="2.0.0" /> <Badge type="success" title="Build" value="Passing" /> <Badge type="warning" title="Coverage" value="75%" /> <Badge type="danger" title="Issues" value="3" />
 
 ### 전체 스타일
 
 ```mdx
-<Badge style="default" title="Default" value="값" />
-<Badge style="info" title="Info" value="값" />
-<Badge style="success" title="Success" value="값" />
-<Badge style="warning" title="Warning" value="값" />
-<Badge style="danger" title="Danger" value="값" />
-<Badge style="note" title="Note" value="값" />
-<Badge style="tip" title="Tip" value="값" />
-<Badge style="important" title="Important" value="값" />
-<Badge style="caution" title="Caution" value="값" />
+<Badge type="default" title="Default" value="값" />
+<Badge type="info" title="Info" value="값" />
+<Badge type="success" title="Success" value="값" />
+<Badge type="warning" title="Warning" value="값" />
+<Badge type="danger" title="Danger" value="값" />
+<Badge type="note" title="Note" value="값" />
+<Badge type="tip" title="Tip" value="값" />
+<Badge type="important" title="Important" value="값" />
+<Badge type="caution" title="Caution" value="값" />
 ```
 
-<Badge style="default" title="Default" value="값" /> <Badge style="info" title="Info" value="값" /> <Badge style="success" title="Success" value="값" /> <Badge style="warning" title="Warning" value="값" /> <Badge style="danger" title="Danger" value="값" /> <Badge style="note" title="Note" value="값" /> <Badge style="tip" title="Tip" value="값" /> <Badge style="important" title="Important" value="값" /> <Badge style="caution" title="Caution" value="값" />
+<Badge type="default" title="Default" value="값" /> <Badge type="info" title="Info" value="값" /> <Badge type="success" title="Success" value="값" /> <Badge type="warning" title="Warning" value="값" /> <Badge type="danger" title="Danger" value="값" /> <Badge type="note" title="Note" value="값" /> <Badge type="tip" title="Tip" value="값" /> <Badge type="important" title="Important" value="값" /> <Badge type="caution" title="Caution" value="값" />
 
 ### Props
 

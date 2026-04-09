@@ -1,10 +1,12 @@
-<!-- CategoryDropdown.vue: 연도/카테고리 선택 드롭다운 | 생성일: 2026-04-08 -->
+<!-- CategoryDropdown.vue: 연도/카테고리 선택 커스텀 드롭다운 | 생성일: 2026-04-08 | 수정일: 2026-04-09 -->
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vitepress'
 
 const route = useRoute()
 const router = useRouter()
+const isOpen = ref(false)
+const dropdownRef = ref(null)
 
 const categories = [
   { label: '2026', path: '/2026/openstack-helm/openstack-helm_quick_guide' },
@@ -26,32 +28,61 @@ const currentCategory = computed(() => {
   return categories[0].label
 })
 
-function onChange(event) {
-  const selected = categories.find(c => c.label === event.target.value)
-  if (selected) {
-    router.go(selected.path)
+function toggle() {
+  isOpen.value = !isOpen.value
+}
+
+function select(cat) {
+  isOpen.value = false
+  router.go(cat.path)
+}
+
+function onClickOutside(e) {
+  if (dropdownRef.value && !dropdownRef.value.contains(e.target)) {
+    isOpen.value = false
   }
 }
+
+onMounted(() => document.addEventListener('click', onClickOutside))
+onUnmounted(() => document.removeEventListener('click', onClickOutside))
 </script>
 
 <template>
-  <div class="category-dropdown">
-    <select :value="currentCategory" @change="onChange" class="category-select">
-      <option v-for="cat in categories" :key="cat.label" :value="cat.label">
-        {{ cat.label }}
-      </option>
-    </select>
+  <div class="category-dropdown" ref="dropdownRef">
+    <button class="dropdown-trigger" @click="toggle" :class="{ open: isOpen }">
+      <span>{{ currentCategory }}</span>
+      <svg class="chevron" :class="{ rotated: isOpen }" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6"/>
+      </svg>
+    </button>
+    <Transition name="dropdown">
+      <ul v-if="isOpen" class="dropdown-list">
+        <li
+          v-for="cat in categories"
+          :key="cat.label"
+          :class="{ active: cat.label === currentCategory }"
+          @click="select(cat)"
+        >
+          {{ cat.label }}
+        </li>
+      </ul>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
 .category-dropdown {
+  position: relative;
   padding: 0.25rem 0.5rem;
   margin-bottom: 0.25rem;
 }
-.category-select {
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  padding: 0.35rem 2.25rem 0.35rem 0.6rem;
+  padding: 0.4rem 0.6rem;
   border: 1px solid var(--vp-c-border);
   border-radius: 8px;
   background-color: var(--vp-c-bg-soft);
@@ -61,19 +92,67 @@ function onChange(event) {
   font-weight: 600;
   cursor: pointer;
   outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7a77' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 0.875rem;
   transition: all 0.2s;
 }
-.category-select:hover,
-.category-select:focus {
+.dropdown-trigger:hover,
+.dropdown-trigger.open {
   border-color: var(--vp-c-brand-1);
   background-color: var(--vp-c-bg-elv);
   box-shadow: 0 0 0 2px var(--vp-c-brand-soft);
+}
+
+.chevron {
+  transition: transform 0.2s;
+}
+.chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.dropdown-list {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  top: calc(100% + 2px);
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--vp-c-bg-elv);
+  border: 1px solid var(--vp-c-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.dropdown-list li {
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-family: var(--vp-font-family-base);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--vp-c-text-1);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dropdown-list li:hover {
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+}
+.dropdown-list li.active {
+  background-color: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-weight: 700;
+}
+
+/* 드롭다운 애니메이션 */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.15s ease;
+}
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 </style>
