@@ -9,6 +9,15 @@ import { useData } from 'vitepress'
 
 const { theme } = useData()
 const projects = computed(() => theme.value.homeProjects || [])
+
+// 문서가 있으면 첫 번째 프로젝트로, 없으면 가이드로
+const docsLink = computed(() => {
+  const p = projects.value
+  if (p.length > 0 && p[0].items && p[0].items.length > 0) {
+    return p[0].items[0].href
+  }
+  return '/guide/'
+})
 </script>
 
 <template>
@@ -22,7 +31,7 @@ const projects = computed(() => theme.value.homeProjects || [])
           카테고리별 프로젝트 문서를 확인하세요.
         </p>
         <div class="hero-actions">
-          <a href="/2026/openstack-helm/openstack-helm_quick_guide" class="btn-brand">문서 보기</a>
+          <a :href="docsLink" class="btn-brand">문서 보기</a>
           <a href="/guide/" class="btn-outline">가이드</a>
         </div>
       </div>

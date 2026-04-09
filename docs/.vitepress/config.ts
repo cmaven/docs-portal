@@ -89,19 +89,52 @@ function generateSidebar(): Record<string, any[]> {
       return fs.statSync(path.join(yearPath, p)).isDirectory() && !p.startsWith('.')
     }).sort()
 
-    // 프로젝트가 적으면 연도 단위로 묶음, 많으면 개별 경로
-    // 항상 연도 묶음 사이드바 (모든 프로젝트를 함께 표시)
-    const yearItems: any[] = []
+    // 버전 그룹 감지: project-alpha와 project-alpha-v2 등
+    const versionGroups = new Map<string, string[]>()
+    for (const proj of projects) {
+      const baseMatch = proj.match(/^(.+?)(-v\d+)?$/)
+      const base = baseMatch ? baseMatch[1] : proj
+      if (!versionGroups.has(base)) versionGroups.set(base, [])
+      versionGroups.get(base)!.push(proj)
+    }
+
+    // 버전이 있는 프로젝트 이름 수집
+    const versionedProjects = new Set<string>()
+    for (const [base, versions] of versionGroups) {
+      if (versions.length > 1) {
+        versions.forEach(v => versionedProjects.add(v))
+      }
+    }
+
+    // 각 프로젝트별 사이드바 생성 (버전 프로젝트는 개별 경로)
+    const allProjItems: { proj: string; item: any }[] = []
     for (const proj of projects) {
       const projPath = path.join(yearPath, proj)
       const urlPrefix = `/${entry}/${proj}/`
       const items = scanDirectory(projPath, urlPrefix)
       if (items.length > 0) {
-        yearItems.push({ text: formatName(proj), items, collapsed: true })
+        allProjItems.push({ proj, item: { text: formatName(proj), items, collapsed: true } })
       }
     }
-    if (yearItems.length > 0) {
-      sidebar[`/${entry}/`] = [{ text: entry, items: yearItems }]
+
+    // 버전 프로젝트: 해당 버전 + 비버전 프로젝트만 표시하는 개별 사이드바
+    for (const proj of versionedProjects) {
+      const baseMatch = proj.match(/^(.+?)(-v\d+)?$/)
+      const base = baseMatch ? baseMatch[1] : proj
+      const filteredItems = allProjItems
+        .filter(p => {
+          if (p.proj === proj) return true  // 현재 버전은 포함
+          if (versionedProjects.has(p.proj) && p.proj !== proj) return false  // 다른 버전은 제외
+          return true  // 비버전 프로젝트는 포함
+        })
+        .map(p => ({ ...p.item, collapsed: p.proj !== proj }))
+
+      sidebar[`/${entry}/${proj}/`] = [{ text: entry, items: filteredItems }]
+    }
+
+    // 연도 레벨 사이드바 (비버전 프로젝트용 폴백)
+    if (allProjItems.length > 0) {
+      sidebar[`/${entry}/`] = [{ text: entry, items: allProjItems.map(p => p.item) }]
     }
   }
 
@@ -145,7 +178,7 @@ function generateCategories(): { label: string; path: string }[] {
     categories.push({ label: year, path: `/${year}/${firstProj}/${firstFile}` })
   }
 
-  categories.push({ label: 'Guide', path: '/guide/' })
+  categories.push({ label: '가이드', path: '/guide/' })
   return categories
 }
 
@@ -276,26 +309,29 @@ export default defineConfig({
     plugins: [{
       name: 'auto-restart-on-new-docs',
       configureServer(server) {
-        // Vite 내장 watcher 활용 (chokidar 기반)
         const watcher = server.watcher
-        watcher.on('addDir', (dirPath: string) => {
-          if (dirPath.startsWith(docsRoot) && !dirPath.includes('.vitepress') && !dirPath.includes('node_modules')) {
-            console.log(`[auto-sidebar] 새 디렉토리 감지: ${dirPath} — 서버 재시작`)
-            setTimeout(() => server.restart(), 500)
-          }
-        })
-        watcher.on('add', (filePath: string) => {
-          if (filePath.endsWith('.md') && filePath.startsWith(docsRoot) && !filePath.includes('.vitepress')) {
-            console.log(`[auto-sidebar] 새 문서 감지: ${filePath} — 서버 재시작`)
-            setTimeout(() => server.restart(), 500)
-          }
-        })
-        watcher.on('unlink', (filePath: string) => {
-          if (filePath.endsWith('.md') && filePath.startsWith(docsRoot) && !filePath.includes('.vitepress')) {
-            console.log(`[auto-sidebar] 문서 삭제 감지: ${filePath} — 서버 재시작`)
-            setTimeout(() => server.restart(), 500)
-          }
-        })
+        let restartTimer: ReturnType<typeof setTimeout> | null = null
+        let isRestarting = false
+
+        function scheduleRestart(reason: string) {
+          if (isRestarting) return
+          console.log(`[auto-sidebar] ${reason}`)
+          if (restartTimer) clearTimeout(restartTimer)
+          // 2초 디바운스: 마지막 변경 후 2초 뒤 재시작
+          restartTimer = setTimeout(() => {
+            console.log('[auto-sidebar] 서버 재시작 중...')
+            process.exit(0)  // docs:watch 루프가 자동으로 재시작
+          }, 2000)
+        }
+
+        function isDocsPath(p: string) {
+          return p.startsWith(docsRoot) && !p.includes('.vitepress') && !p.includes('node_modules')
+        }
+
+        watcher.on('addDir', (p: string) => { if (isDocsPath(p)) scheduleRestart(`새 디렉토리: ${p}`) })
+        watcher.on('add', (p: string) => { if (p.endsWith('.md') && isDocsPath(p)) scheduleRestart(`새 문서: ${p}`) })
+        watcher.on('unlink', (p: string) => { if (p.endsWith('.md') && isDocsPath(p)) scheduleRestart(`문서 삭제: ${p}`) })
+        watcher.on('unlinkDir', (p: string) => { if (isDocsPath(p)) scheduleRestart(`디렉토리 삭제: ${p}`) })
       }
     }]
   }

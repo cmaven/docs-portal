@@ -4,15 +4,17 @@
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev docs --port 3030",
+    "docs:watch": "while true; do npx vitepress dev docs --port 3030 --host 0.0.0.0; echo '[watch] 서버 재시작...'; sleep 1; done",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs --port 3030"
   },
   "dependencies": {
-    "vue": "^3.5.13",
+    "asciinema-player": "^3.15.1",
     "mermaid": "^11.14.0",
-    "asciinema-player": "^3.15.1"
+    "vue": "^3.5.13"
   },
   "devDependencies": {
+    "gray-matter": "^4.0.3",
     "vitepress": "^1.6.3"
   }
 }

@@ -1,24 +1,63 @@
 <!-- DocHeader.vue: 문서 상단 프로젝트 라벨 + 제목 + 설명 (frontmatter 자동 렌더링) | 생성일: 2026-04-09 -->
 <script setup>
-import { computed } from 'vue'
-import { useData } from 'vitepress'
+import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useData, useRoute } from 'vitepress'
 
 const { frontmatter, page } = useData()
+const route = useRoute()
+const firstHeading = ref('')
 
-const projectLabel = computed(() => {
-  const path = page.value.relativePath
-  // 경로에서 프로젝트명 추출: 2025/project-alpha/index.md → Project Alpha
-  const match = path.match(/\d{4}\/([\w-]+)/)
-  if (!match) return null
-  return match[1]
-    .split('-')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+function extractFirstHeading() {
+  firstHeading.value = ''
+  if (!frontmatter.value.title) {
+    nextTick(() => {
+      setTimeout(() => {
+        const h1 = document.querySelector('.vp-doc h1, .vp-doc h2')
+        if (h1) {
+          firstHeading.value = h1.textContent?.trim() || ''
+        }
+      }, 150)
+    })
+  }
+}
+
+// 라우트 변경 시 리셋 + 재추출
+watch(() => route.path, () => {
+  extractFirstHeading()
 })
 
-const title = computed(() => frontmatter.value.title || '')
+onMounted(() => {
+  extractFirstHeading()
+  document.body.classList.add('has-doc-header')
+})
+
+onUnmounted(() => {
+  document.body.classList.remove('has-doc-header')
+})
+
+const projectLabel = computed(() => {
+  const p = page.value.relativePath
+  // 연도/프로젝트 경로: 2025/project-alpha/index.md → Project Alpha
+  const yearMatch = p.match(/\d{4}\/([\w-]+)/)
+  if (yearMatch) {
+    return yearMatch[1]
+      .split(/[-_]/)
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+  }
+  // guide 경로: guide/index.md → 가이드
+  if (p.startsWith('guide/')) return '가이드'
+  // 기타 경로: 첫 번째 디렉토리명
+  const dirMatch = p.match(/^([\w-]+)\//)
+  if (dirMatch) {
+    return dirMatch[1].charAt(0).toUpperCase() + dirMatch[1].slice(1)
+  }
+  return null
+})
+
+const title = computed(() => frontmatter.value.title || firstHeading.value || '')
 const description = computed(() => frontmatter.value.description || '')
-const showHeader = computed(() => title.value && projectLabel.value)
+const showHeader = computed(() => !!title.value)
 </script>
 
 <template>

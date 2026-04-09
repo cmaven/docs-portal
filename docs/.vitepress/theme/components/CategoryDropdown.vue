@@ -15,7 +15,7 @@ const categories = computed(() => theme.value.categories || [])
 const currentCategory = computed(() => {
   const path = route.path
   for (const cat of categories.value) {
-    if (cat.label === 'Guide' && path.startsWith('/guide')) return cat.label
+    if (cat.label === '가이드' && path.startsWith('/guide')) return cat.label
     if (path.startsWith('/' + cat.label + '/')) return cat.label
   }
   return categories.value[0]?.label || ''
@@ -78,7 +78,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--vp-c-border);
   border-radius: 8px;
-  background-color: var(--vp-c-bg-soft);
+  background-color: rgba(238, 233, 239, 0.18);
   color: var(--vp-c-text-1);
   font-family: var(--vp-font-family-base);
   font-size: 0.8rem;

@@ -98,7 +98,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   padding: 0.3rem 0.5rem;
   border: 1px solid var(--vp-c-border);
   border-radius: 6px;
-  background: var(--vp-c-bg-soft);
+  background: rgba(238, 233, 239, 0.18);
   color: var(--vp-c-text-2);
   font-family: var(--vp-font-family-base);
   font-size: 0.75rem;
@@ -132,7 +132,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   background: var(--vp-c-bg-elv);
   border: 1px solid var(--vp-c-border);
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(234, 233, 239, 0.18);
   z-index: 100;
 }
 

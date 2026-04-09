@@ -1,14 +1,14 @@
 ---
-title: MDX 작성 가이드
-description: Fumadocs 기반 MDX 문서 작성 방법
+title: Markdown 작성 가이드
+description: VitePress 기반 Markdown 문서 작성 방법
 ---
 
-Tech Docs Portal은 **MDX** (Markdown + JSX) 형식으로 문서를 작성합니다.
-이 가이드에서는 자주 사용하는 MDX 문법과 컴포넌트를 소개합니다.
+Tech Docs Portal은 **Markdown** (`.md`) 형식으로 문서를 작성합니다.
+이 가이드에서는 자주 사용하는 Markdown 문법과 VitePress 확장 기능을 소개합니다.
 
 ## Frontmatter
 
-모든 MDX 파일의 상단에는 YAML frontmatter가 필요합니다.
+모든 `.md` 파일의 상단에는 YAML frontmatter가 필요합니다.
 
 ```yaml
 ---
@@ -21,8 +21,6 @@ description: 페이지 설명 (선택)
 |------|------|------|
 | `title` | O | 페이지 제목 (사이드바, 브라우저 탭에 표시) |
 | `description` | X | 페이지 설명 (검색 결과, 메타태그에 사용) |
-| `icon` | X | 사이드바 아이콘 |
-| `full` | X | `true`이면 전체 너비 레이아웃 |
 
 ## 제목 (Headings)
 
@@ -33,7 +31,7 @@ description: 페이지 설명 (선택)
 #### H4 제목
 ```
 
-> H2, H3는 우측 "On this page" TOC에 자동으로 표시됩니다.
+> H2, H3는 우측 목차(TOC)에 자동으로 표시됩니다.
 
 ## 텍스트 스타일
 
@@ -138,6 +136,54 @@ function getProject(id: string): Project {
 
 > 이것은 인용 블록입니다.
 > 여러 줄로 작성할 수 있습니다.
+
+## Callout (컨테이너)
+
+VitePress는 `:::` 컨테이너 문법으로 Callout을 지원합니다.
+
+```md
+::: info 정보
+일반 안내 메시지입니다.
+:::
+
+::: tip 팁
+유용한 팁을 전달할 때 사용합니다.
+:::
+
+::: warning 주의
+주의가 필요한 내용입니다.
+:::
+
+::: danger 위험
+잘못하면 문제가 발생할 수 있는 내용입니다.
+:::
+
+::: details 접기/펼치기
+숨겨진 상세 내용입니다. 클릭하면 펼쳐집니다.
+:::
+```
+
+실제 렌더링:
+
+::: info 정보
+일반 안내 메시지입니다.
+:::
+
+::: tip 팁
+유용한 팁을 전달할 때 사용합니다.
+:::
+
+::: warning 주의
+주의가 필요한 내용입니다.
+:::
+
+::: danger 위험
+잘못하면 문제가 발생할 수 있는 내용입니다.
+:::
+
+::: details 접기/펼치기
+숨겨진 상세 내용입니다. 클릭하면 펼쳐집니다.
+:::
 
 ## Mermaid 다이어그램
 

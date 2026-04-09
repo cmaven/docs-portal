@@ -70,7 +70,7 @@ function openSearch() {
   bottom: 0;
   left: 0;
   width: var(--vp-sidebar-width, 240px);
-  background: var(--vp-c-bg-alt);
+  background: var(--vp-sidebar-bg-color, #ffffff);
   z-index: 2;
   box-sizing: border-box;
 }
@@ -87,7 +87,7 @@ function openSearch() {
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.8rem;
-  background: var(--vp-c-bg-soft);
+  background: rgba(234, 233, 239, 0.18);
 }
 .footer-search:hover {
   border-color: var(--vp-c-brand-1);
@@ -128,4 +128,5 @@ function openSearch() {
   color: var(--vp-c-brand-1);
   background: var(--vp-c-brand-soft);
 }
+
 </style>
