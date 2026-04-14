@@ -70,6 +70,61 @@ npm run docs:build
 
 접속: http://localhost:3030
 
+## 원격 서버 업데이트 (개발 환경)
+
+다른 서버에서 `docker-compose.dev.yml`로 운영 중일 때, 최신 코드를 반영하는 방법입니다.
+
+### 문서만 변경된 경우
+
+`package.json` 변경 없이 문서 콘텐츠만 업데이트할 때:
+
+```bash
+# 서버에서 생성/수정한 문서가 있으면 임시 저장
+git stash
+
+# 최신 코드 가져오기
+git pull
+
+# 임시 저장한 문서 복원
+git stash pop
+
+# 컨테이너 재시작 (볼륨 마운트로 변경 사항 자동 반영)
+docker compose -f docker-compose.dev.yml restart
+```
+
+### 의존성(package.json)이 변경된 경우
+
+`node_modules`는 Docker named volume으로 관리되어, `git pull`만으로는 갱신되지 않습니다.
+반드시 볼륨을 삭제한 뒤 다시 시작해야 합니다.
+
+```bash
+# 컨테이너 중지
+docker compose -f docker-compose.dev.yml down
+
+# node_modules 볼륨 삭제 (볼륨명 확인: docker volume ls | grep node_modules)
+docker volume rm cdocs_node_modules
+
+# 최신 코드 가져오기
+git stash
+git pull
+git stash pop
+
+# 다시 시작 (npm install 자동 실행)
+docker compose -f docker-compose.dev.yml up -d
+```
+
+### 변경 사항이 전혀 반영되지 않을 때
+
+캐시 문제로 반영이 안 되면 컨테이너를 완전히 재생성합니다:
+
+```bash
+docker compose -f docker-compose.dev.yml down
+docker volume rm cdocs_node_modules
+docker compose -f docker-compose.dev.yml up -d --force-recreate
+```
+
+> **참고:** 볼륨 이름은 프로젝트 디렉토리명에 따라 달라질 수 있습니다. `docker volume ls | grep node_modules`로 정확한 이름을 확인하세요.
+
 ## 문서 추가
 
 모든 문서는 `docs/` 하위에 **연도/프로젝트/파일.md** 형태로 저장합니다.
