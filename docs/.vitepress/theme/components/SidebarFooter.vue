@@ -75,6 +75,15 @@ function openSearch() {
   box-sizing: border-box;
 }
 
+/* 모바일: 사이드바가 transform으로 숨겨져도 fixed footer는 남으므로 숨김 */
+@media (max-width: 959px) {
+  .sidebar-footer {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+  }
+}
+
 /* Row 1: Search */
 .footer-search {
   display: flex;
