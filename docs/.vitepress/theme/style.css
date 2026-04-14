@@ -299,6 +299,18 @@ body.hide-navbar .VPDoc .content {
 .VPSidebar {
   width: var(--vp-sidebar-width) !important;
   max-width: var(--vp-sidebar-width) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding-bottom: 0 !important;
+}
+/* nav가 사이드바 전체 높이를 채우도록 → footer가 항상 하단 고정 */
+.VPSidebar .nav {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.VPSidebar .nav .sidebar-footer {
+  margin-top: auto;
 }
 body.hide-navbar .VPContent {
   padding-left: var(--vp-sidebar-width) !important;
@@ -417,7 +429,4 @@ body.has-doc-header .vp-doc > div > h1:first-child {
   width: 220px !important;
 }
 
-/* ── 사이드바 내부: 푸터 고정 영역 확보 ── */
-.VPSidebar .nav {
-  padding-bottom: 5.5rem;
-}
+/* ── 사이드바 내부: 푸터가 sticky로 하단 고정되므로 별도 패딩 불필요 ── */

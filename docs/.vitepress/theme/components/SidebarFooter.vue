@@ -65,23 +65,13 @@ function openSearch() {
   gap: 0.5rem;
   padding: 0.75rem;
   border-top: 1px solid var(--vp-c-border);
-  /* 브라우저 하단 고정 (사이드바 내용량 무관) */
-  position: fixed;
+  /* 사이드바 스크롤 컨테이너(.VPSidebar) 하단에 sticky 고정 */
+  position: sticky;
   bottom: 0;
-  left: 0;
-  width: var(--vp-sidebar-width, 240px);
+  width: 100%;
   background: var(--vp-sidebar-bg-color, #ffffff);
   z-index: 2;
   box-sizing: border-box;
-}
-
-/* 모바일: 사이드바가 transform으로 숨겨져도 fixed footer는 남으므로 숨김 */
-@media (max-width: 959px) {
-  .sidebar-footer {
-    position: sticky;
-    bottom: 0;
-    width: 100%;
-  }
 }
 
 /* Row 1: Search */
