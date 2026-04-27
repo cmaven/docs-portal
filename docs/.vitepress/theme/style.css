@@ -150,6 +150,29 @@ pre, code, kbd, samp {
   max-width: 100%;
   height: auto;
 }
+/*
+ * Mermaid <foreignObject> HTML 라벨은 .vp-doc의 줄간격(line-height: 1.85)과
+ * 단락 마진(.vp-doc p { margin: 1em 0 }) 등을 그대로 상속받기 때문에:
+ *   1) 박스 측정값(body 직속 hidden div: line-height: normal)과 렌더값이 어긋나
+ *      다중 줄에서 마지막 줄이 잘림.
+ *   2) <p> 단락의 비대칭 마진이 텍스트의 수직 중앙 정렬을 깨뜨림.
+ * 모든 자손 요소를 리셋하여 measurement 시점과 동일한 metric으로 정렬.
+ */
+.mermaid-wrapper svg foreignObject,
+.mermaid-wrapper svg foreignObject * {
+  line-height: normal !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/*
+ * 한글 폰트(SUITE/system korean fallback)는 ascender > descender 라서
+ * baseline 기준으로 그려진 텍스트가 박스 안에서 시각적으로 위쪽에 붙어 보임
+ * (위 공백 < 아래 공백). foreignObject 내부 div를 0.08em 정도 아래로 밀어
+ * 시각적 수직 중앙 정렬을 맞춤.
+ */
+.mermaid-wrapper svg foreignObject > div {
+  transform: translateY(0.08em) !important;
+}
 
 /* ── MDX Button 컴포넌트 ── */
 a.mdx-button {
