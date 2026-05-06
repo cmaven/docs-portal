@@ -1,4 +1,4 @@
-<!-- README.md: cdocs 프로젝트 개요 및 사용 가이드 | 생성일: 2026-04-09 -->
+<!-- README.md: cdocs 프로젝트 개요 및 사용 가이드 | 생성일: 2026-04-09 | 수정일: 2026-05-06 -->
 
 # cdocs
 
@@ -124,6 +124,58 @@ docker compose -f docker-compose.dev.yml up -d --force-recreate
 ```
 
 > **참고:** 볼륨 이름은 프로젝트 디렉토리명에 따라 달라질 수 있습니다. `docker volume ls | grep node_modules`로 정확한 이름을 확인하세요.
+
+### 로컬 변경(설정 수정 + 추가 문서)을 유지하며 업데이트
+
+운영 머신에서 흔히 다음 상태가 됩니다.
+- 추적되는 파일(예: `docker-compose.dev.yml`)을 환경에 맞게 로컬 수정
+- `docs/<year>/<프로젝트>/` 하위에 git에 등록하지 않은 문서가 다수
+
+이 상태에서 코드만 안전하게 갱신하는 절차입니다.
+
+**케이스 A — 원격이 로컬 수정 파일을 건드리지 않은 경우 (대부분의 일상 업데이트)**
+
+```bash
+git pull origin main
+docker compose -f docker-compose.dev.yml restart cdocs
+```
+
+- 추적 파일: 원격에서 같은 파일을 수정하지 않았다면 로컬 수정이 그대로 유지됩니다.
+- untracked 파일/디렉토리: `git pull`이 절대 건드리지 않습니다.
+
+`git pull` 직전에 `git status`로 변경 상태를, `git fetch && git diff HEAD..origin/main --name-only` 로 어떤 파일이 들어오는지 미리 확인하면 안전합니다.
+
+**케이스 B — 원격이 로컬 수정 파일과 동일 파일을 수정한 경우 (충돌 가능)**
+
+`git pull`이 `Your local changes to the following files would be overwritten by merge` 류의 에러를 내면 stash 패턴으로 우회합니다. `-u` 옵션은 untracked 파일까지 임시 저장에 포함합니다.
+
+```bash
+# 1) 로컬 변경(추적 + untracked) 모두 임시 저장
+git stash push -u -m "local-$(date +%F)"
+
+# 2) 원격 동기화
+git pull origin main
+
+# 3) 임시 저장 복원
+git stash pop
+
+# 4) 컨테이너 재시작
+docker compose -f docker-compose.dev.yml restart cdocs
+```
+
+복원 시 충돌이 발생하면 충돌 마커(`<<<<<<<`)가 있는 파일을 수동으로 정리한 뒤 `git add <파일>` → `git stash drop` 으로 마무리합니다.
+
+**stash 관리 명령**
+
+```bash
+git stash list                  # 임시 저장 목록
+git stash show -p stash@{0}     # 특정 stash 변경 내용 확인
+git stash apply stash@{0}       # 복원하되 stash는 보존
+git stash drop stash@{0}        # 특정 stash 삭제
+git stash clear                 # 전체 삭제
+```
+
+> **팁:** untracked 디렉토리에 콘텐츠 작업 중인 문서가 많다면 stash보다 별도 작업 브랜치를 만들어 커밋해두는 편이 더 안전합니다 (`git checkout -b local/<host>` → `git add` → `git commit`).
 
 ## 문서 추가
 
