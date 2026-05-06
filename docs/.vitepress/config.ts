@@ -1,7 +1,7 @@
 /**
  * config.ts: VitePress 사이트 설정 - 자동 사이드바 생성 포함
  * 상세: docs/ 하위에 .md 파일을 배치하면 사이드바에 자동 등록
- * 생성일: 2026-04-08 | 수정일: 2026-04-09
+ * 생성일: 2026-04-08 | 수정일: 2026-05-06
  */
 import { defineConfig } from 'vitepress'
 import fs from 'node:fs'
@@ -327,26 +327,51 @@ export default defineConfig({
         const watcher = server.watcher
         let restartTimer: ReturnType<typeof setTimeout> | null = null
         let isRestarting = false
+        const recentEvents = new Map<string, number>()  // 같은 경로 중복 이벤트 억제
 
-        function scheduleRestart(reason: string) {
+        function scheduleRestart(reason: string, key: string) {
           if (isRestarting) return
+          // 동일 경로에 대한 1초 내 중복 이벤트는 흡수 (폴링 환경 안정화)
+          const now = Date.now()
+          const last = recentEvents.get(key) ?? 0
+          if (now - last < 1000) return
+          recentEvents.set(key, now)
+
           console.log(`[auto-sidebar] ${reason}`)
           if (restartTimer) clearTimeout(restartTimer)
-          // 2초 디바운스: 마지막 변경 후 2초 뒤 재시작
+          // 3초 디바운스: 폴링 false-positive 흡수 + 연속 업로드 묶기
           restartTimer = setTimeout(() => {
+            isRestarting = true
             console.log('[auto-sidebar] 서버 재시작 중...')
             process.exit(0)  // docs:watch 루프가 자동으로 재시작
-          }, 2000)
+          }, 3000)
         }
 
         function isDocsPath(p: string) {
           return p.startsWith(docsRoot) && !p.includes('.vitepress') && !p.includes('node_modules')
         }
 
-        watcher.on('addDir', (p: string) => { if (isDocsPath(p)) scheduleRestart(`새 디렉토리: ${p}`) })
-        watcher.on('add', (p: string) => { if (p.endsWith('.md') && isDocsPath(p)) scheduleRestart(`새 문서: ${p}`) })
-        watcher.on('unlink', (p: string) => { if (p.endsWith('.md') && isDocsPath(p)) scheduleRestart(`문서 삭제: ${p}`) })
-        watcher.on('unlinkDir', (p: string) => { if (isDocsPath(p)) scheduleRestart(`디렉토리 삭제: ${p}`) })
+        // CHOKIDAR_USEPOLLING + Docker bind-mount 환경에서 폴링 glitch로
+        // false-positive add/unlink가 발생할 수 있어 디스크 실존 여부로 재검증한다.
+        watcher.on('addDir', (p: string) => {
+          if (!isDocsPath(p) || !fs.existsSync(p)) return
+          scheduleRestart(`새 디렉토리: ${p}`, `addDir:${p}`)
+        })
+        watcher.on('add', (p: string) => {
+          if (!p.endsWith('.md') || !isDocsPath(p)) return
+          if (!fs.existsSync(p)) return  // false-positive add 차단
+          scheduleRestart(`새 문서: ${p}`, `add:${p}`)
+        })
+        watcher.on('unlink', (p: string) => {
+          if (!p.endsWith('.md') || !isDocsPath(p)) return
+          if (fs.existsSync(p)) return  // 살아있는 파일에 대한 false-positive unlink 차단 (재시작 루프 방지)
+          scheduleRestart(`문서 삭제: ${p}`, `unlink:${p}`)
+        })
+        watcher.on('unlinkDir', (p: string) => {
+          if (!isDocsPath(p)) return
+          if (fs.existsSync(p)) return
+          scheduleRestart(`디렉토리 삭제: ${p}`, `unlinkDir:${p}`)
+        })
       }
     }]
   }
